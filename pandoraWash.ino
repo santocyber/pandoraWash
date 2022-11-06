@@ -1,6 +1,6 @@
 /*
   SantoCyber 
-  Complete project details at https://github.com/santocyber/pandoraLUX
+  Complete project details at https://github.com/santocyber/pandoraWash
   
 */
 
