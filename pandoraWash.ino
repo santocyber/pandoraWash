@@ -174,7 +174,10 @@ void handleNewMessages(int numNewMessages) {
       String welcome = "Bem vindo, " + from_name + ".\n";
       welcome += "Use os comandos a seguir para controlar a Pandora .\n\n";
       welcome += "/lavaroupa para ligar a maquina \n";
-      welcome += "/led_off to turn GPIO OFF \n";
+      welcome += "/solenoide para ligar a maquina \n";
+      welcome += "/drenagem para ligar a maquina \n";
+      welcome += "/bldcfull para ligar a maquina \n";
+      welcome += "/lava_off to turn GPIO OFF \n";
       welcome += "/state to request current GPIO state \n";
       bot.sendMessage(chat_id, welcome, "");
 
@@ -202,10 +205,35 @@ delay(2000);
 Serial.println("Roupa limpinha");
 bot.sendMessage(chat_id,"Roupa limpinha");
 display.println("Roupa limpinha");
-
+delay(12000);
     }
+
+
+ if (text == "/solenoide") {
+tarefa1();
+Serial.println("Ligando valvula solenoide");
+bot.sendMessage(chat_id, "liberando agua", "");
+delay(2000);
+}
+if (text == "/drenagem") {
+tarefa2();
+Serial.println("Ligando drenagem");
+bot.sendMessage(chat_id, "ligando drenagem", "");
+delay(2000);
+}
+if (text == "/bldcfull") {
+tarefa4();
+Serial.println("Ligando bldcfull");
+bot.sendMessage(chat_id, "ligando bldcfull", "");
+delay(12000);
+}
+
+
+
+
+
     
-          if (text == "/maquina_off") {
+          if (text == "/lava_off") {
       bot.sendMessage(chat_id, "Desligando todos os sensores", "");
       Serial.println("Desligando sensores");
       digitalWrite(drenagemPin, LOW);
@@ -308,7 +336,6 @@ delay(2000); // Aguarda 2 segundos
     lastTimeBotRan = millis();
   }
   
-//funcao acende led quando valor de ldr cair
   
 valorbutton = digitalRead(buttonPin);//Lê o valor do sensor ldr e armazena na variável valorldr
 Serial.println(valorbutton);//Imprime na serial os dados de valorldr
@@ -339,6 +366,11 @@ display.println("Roupa limpinha");
   else { //Senão:
 
    Serial.println("Fim de operacao");
+   delay(2000);
+   display.println(formattedTime);
+   delay(2000);
+   Serial.println(formattedTime);
+   delay(2000);
    
   }
 
