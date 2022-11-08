@@ -26,11 +26,12 @@ unsigned long tempo;
 unsigned long lastTimeBotRan; // last time messages' scan has been done
 const unsigned long botRequestDelay = 1000; // mean time between scan messages
 
-
-int solenoidePin = 2;
-int drenagemPin = 2;
-int bldcPin = 2;
+int ledPin = 25;
+int solenoidePin = 15;
+int drenagemPin = 13;
+int bldcPin = 12;
 const int buttonPin = 0;
+const int button2Pin = 35;
 int valorbutton = 0;
 
 //config time
@@ -42,82 +43,13 @@ byte omm = 99, oss = 99;
 byte xcolon = 0, xsecs = 0;
 unsigned int colour = 0;
 
-// Inicia variáveis de tempo
-unsigned long millisTarefa1 = millis();
-unsigned long millisTarefa2 = millis();
-unsigned long millisTarefa3 = millis();
-unsigned long millisTarefa4 = millis();
-
-
-
-
-void tarefa1(){
-  // Verifica se já passou 200 milisegundos
-  if((millis() - millisTarefa1) < 200){
-    // Acende o pino 7 valvula solenoide
-    digitalWrite(solenoidePin, HIGH);
-    
-  }else{
-    // Apaga o led do pino 7
-    digitalWrite(solenoidePin, LOW);
-  }
-  // Verifica se já passou 400 milisegundos reinicia funcao
-  if((millis() - millisTarefa1) > 5000){
-    millisTarefa1 = millis();
-  }}
-
-  void tarefa2(){
-  // Verifica se já passou 200 milisegundos
-  if((millis() - millisTarefa2) < 5000){
-    // Acende o pino 8 bomba drenagem
-    digitalWrite(drenagemPin, HIGH);
-    
-  }else{
-    // Apaga o led do pino 7
-    digitalWrite(drenagemPin, LOW);
-  }
-  // Verifica se já passou 400 milisegundos reinicia funcao
-  if((millis() - millisTarefa2) > 400){
-    millisTarefa1 = millis();
-  }}
-
-  //liga o motor devagar
-  void tarefa3(){
-  // Verifica se já passou 200 milisegundos
-  if((millis() - millisTarefa3) < 200){
-    // Acende o controlador no maximo
-    analogWrite(bldcPin, 255);
-    
-  }else{
-    // Apaga o led do pino 7
-    analogWrite(bldcPin, 0);
-  }
-  // Verifica se já passou 400 milisegundos reinicia funcao
-  if((millis() - millisTarefa3) > 400){
-    millisTarefa1 = millis();
-  }}
-//liga o motor fullspeed
-    void tarefa4(){
-  // Verifica se já passou 200 milisegundos
-  if((millis() - millisTarefa4) < 200){
-    // Acende o controlador no maximo
-    analogWrite(bldcPin, 1023);
-    
-  }else{
-    // Apaga o led do pino 7
-    analogWrite(bldcPin, 0);
-  }
-  // Verifica se já passou 400 milisegundos reinicia funcao
-  if((millis() - millisTarefa4) > 400){
-    millisTarefa1 = millis();
-  }}
-
 
 
 void ciclo(){
          tft.setTextSize(2);
          tft.fillScreen(TFT_BLUE);
          Serial.println("Iniciando ciclo");
+         digitalWrite(ledPin, HIGH);
          Serial.println("Ligando valvula solenoide");
          bot.sendMessage(id, "ligando valvula", "");
          tft.drawString("ligando valvula", tft.width() / 6, tft.height() / 6);
@@ -146,7 +78,7 @@ tft.fillScreen(TFT_BLUE);
 Serial.println("Ligando motor fullspeed e drenagem");
 bot.sendMessage(id,"ligando motor fullspeed e drenagem");
 tft.fillScreen(TFT_BLUE);
-       tft.drawString("ligando motor full", tft.width() / 6, tft.height() / 6);
+       tft.drawString("ligando motor \n full", tft.width() / 6, tft.height() / 6);
        analogWrite(bldcPin, 1023);
        digitalWrite(drenagemPin, HIGH);
  delay(25000);
@@ -157,7 +89,8 @@ Serial.println("Roupa limpinha");
 bot.sendMessage(id,"Roupa limpinha");
 tft.fillScreen(TFT_BLUE);
 tft.drawString("Roupa limpinha", tft.width() / 6, tft.height() / 6);
-delay(5000);
+digitalWrite(ledPin, LOW);
+delay(15000);
 tft.fillScreen(TFT_BLACK);
 cuco();
 
@@ -252,10 +185,14 @@ void setup()
 {
 
 pinMode(buttonPin, INPUT); // initialize digital ledPin as an output.
+pinMode(button2Pin, INPUT); // initialize digital ledPin as an output.
 pinMode(solenoidePin, OUTPUT); // initialize digital ledPin as an output.
 pinMode(drenagemPin, OUTPUT); // initialize digital ledPin as an output.
 pinMode(bldcPin, OUTPUT); // initialize digital ledPin as an output.
+pinMode(ledPin, OUTPUT); // initialize digital ledPin as an output.
 
+
+digitalWrite(ledPin, LOW);
 digitalWrite(solenoidePin, HIGH); // initialize pin as off (active LOW)
 digitalWrite(solenoidePin, LOW); // initialize pin as off (active LOW)
 digitalWrite(drenagemPin, LOW); // initialize pin as off (active LOW)
