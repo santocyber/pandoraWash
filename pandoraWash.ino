@@ -23,13 +23,13 @@ UniversalTelegramBot bot(BOTtoken, client);
 
 String id, text, welcome, from_name;//Váriaveis para armazenamento do ID e TEXTO gerado pelo Usuario
 unsigned long tempo;
+unsigned long lastTimeBotRan; // last time messages' scan has been done
+const unsigned long botRequestDelay = 1000; // mean time between scan messages
 
 
-const int D4 = 2;
-
-int solenoidePin = 6;
-int drenagemPin = 7;
-int bldcPin = 8;
+int solenoidePin = 2;
+int drenagemPin = 2;
+int bldcPin = 2;
 const int buttonPin = 0;
 int valorbutton = 0;
 
@@ -115,48 +115,72 @@ void tarefa1(){
 
 
 void ciclo(){
-
-Serial.println("Iniciando ciclo");
+         tft.setTextSize(2);
+         tft.fillScreen(TFT_BLUE);
+         Serial.println("Iniciando ciclo");
          Serial.println("Ligando valvula solenoide");
          bot.sendMessage(id, "ligando valvula", "");
          tft.drawString("ligando valvula", tft.width() / 6, tft.height() / 6);
         digitalWrite(solenoidePin, HIGH);
-         delay(5000);
+         delay(15000);
          digitalWrite(solenoidePin, LOW);
 
          Serial.println("Ligando motor  lavagem");
 bot.sendMessage(id,"ligando motor lavagem");
-       tft.drawString("lavando", tft.width() / 5, tft.height() / 5);
+tft.fillScreen(TFT_BLUE);
+       tft.drawString("lavando", tft.width() / 6, tft.height() / 6);
        analogWrite(bldcPin, 255);
- delay(5000);
+ delay(15000);
  analogWrite(bldcPin, 0);
  
 Serial.println("Ligando drenagem");
 bot.sendMessage(id,"ligando drenagem");
-       tft.drawString("drenando agua", tft.width() / 4, tft.height() / 4);
+tft.fillScreen(TFT_BLUE);
+       tft.drawString("drenando agua", tft.width() / 6, tft.height() / 6);
         digitalWrite(drenagemPin, HIGH);
- delay(5000);
+ delay(15000);
   digitalWrite(drenagemPin, LOW);
  
 
  
 Serial.println("Ligando motor fullspeed e drenagem");
 bot.sendMessage(id,"ligando motor fullspeed e drenagem");
-       tft.drawString("ligando motor", tft.width() / 3, tft.height() / 3);
+tft.fillScreen(TFT_BLUE);
+       tft.drawString("ligando motor full", tft.width() / 6, tft.height() / 6);
        analogWrite(bldcPin, 1023);
        digitalWrite(drenagemPin, HIGH);
- delay(5000);
+ delay(25000);
  analogWrite(bldcPin, 0);
  digitalWrite(drenagemPin, LOW);
  
 Serial.println("Roupa limpinha");
 bot.sendMessage(id,"Roupa limpinha");
-tft.drawString("Roupa limpinha", tft.width() / 2, tft.height() / 2);
-
+tft.fillScreen(TFT_BLUE);
+tft.drawString("Roupa limpinha", tft.width() / 6, tft.height() / 6);
+delay(5000);
+tft.fillScreen(TFT_BLACK);
+cuco();
 
 }
 
 
+
+void handleNewMessages(int numNewMessages) {
+  Serial.println("handleNewMessages");
+  Serial.println(String(numNewMessages));
+   
+  
+
+  for (int i=0; i<numNewMessages; i++) {
+    // Chat id of the requester
+    String id = String(bot.messages[i].chat_id);
+
+    // Print the received message
+    String text = bot.messages[i].text;
+    Serial.println(text);
+
+
+    } }
 
 
 void cuco(){
@@ -226,16 +250,26 @@ if (targetTime < millis()) {
 
 void setup()
 {
-   pinMode(D4, OUTPUT);//LED conectado à saida
+
+pinMode(buttonPin, INPUT); // initialize digital ledPin as an output.
+pinMode(solenoidePin, OUTPUT); // initialize digital ledPin as an output.
+pinMode(drenagemPin, OUTPUT); // initialize digital ledPin as an output.
+pinMode(bldcPin, OUTPUT); // initialize digital ledPin as an output.
+
+digitalWrite(solenoidePin, HIGH); // initialize pin as off (active LOW)
+digitalWrite(solenoidePin, LOW); // initialize pin as off (active LOW)
+digitalWrite(drenagemPin, LOW); // initialize pin as off (active LOW)
+analogWrite(bldcPin, 0); // initialize pin as off (active LOW)
+
+  
    WiFi.mode(WIFI_STA);//Define o WiFi como Estaçao
    connect();//Funçao para Conectar ao WiFi
    
 //inicia tft
- tft.init();
-    tft.setRotation(1);
+  tft.init();
+  tft.setRotation(1);
+  tft.setTextSize(2);
   tft.fillScreen(TFT_BLACK);
-
-  tft.setTextSize(1);
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
 Serial.begin(115200);
@@ -277,7 +311,21 @@ void loop()
       tempo = millis();//Reseta o tempo
    }
 
+
    cuco();
+//funcao ativa ciclo botao bultin
+
+valorbutton = digitalRead(buttonPin);//Lê o valor do sensor ldr e armazena na variável valorldr
+if ((valorbutton) == LOW) { 
+ Serial.println(valorbutton);
+readTel();
+ciclo();
+bot.sendMessage(id, "Button pressionado", "");//Envia uma Mensagem para a pessoa que enviou o Comando.
+
+  }
+  
+
+   
 }
 
 
@@ -306,21 +354,19 @@ void readTel()//Funçao que faz a leitura do Telegram.
 
       if (text.indexOf("LAVAON") > -1)//Caso o texto recebido contenha "ON"
       {
-         tft.setTextSize(2);
-         tft.fillScreen(TFT_BLUE);
+         
        
 
          ciclo();
-         delay(5000);
+        
          cuco();
       }
 
       else if (text.indexOf("LAVAOFF") > -1)//Caso o texto recebido contenha "OFF"
       {
-         digitalWrite(D4, 1);//Desliga o LED
          bot.sendMessage(id, "Lava OFF", "");//Envia uma Mensagem para a pessoa que enviou o Comando.
          tft.setTextSize(3);
-         tft.fillScreen(TFT_YELLOW);
+         tft.fillScreen(TFT_RED);
          tft.drawString("Lava OFF", tft.width() / 1, tft.height() / 1);
          delay(5000);
          cuco();
@@ -342,7 +388,7 @@ void readTel()//Funçao que faz a leitura do Telegram.
       welcome += "/OLA : Abre esse menu\n";
       bot.sendMessage(id, welcome, "Markdown");      
       }
-      else if   (text = "/Ola")//Caso o texto recebido contenha "START"
+      else if   (text = "/Ola" "Ola" "OLA")//Caso o texto recebido contenha "START"
       {
      if (from_name == "")
       from_name = "Guest";
