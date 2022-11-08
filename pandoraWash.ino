@@ -23,13 +23,13 @@ UniversalTelegramBot bot(BOTtoken, client);
 
 String id, text, welcome, from_name;//Váriaveis para armazenamento do ID e TEXTO gerado pelo Usuario
 unsigned long tempo;
-unsigned long lastTimeBotRan; // last time messages' scan has been done
-const unsigned long botRequestDelay = 1000; // mean time between scan messages
 
-int ledPin = 25;
-int solenoidePin = 15;
-int drenagemPin = 13;
-int bldcPin = 12;
+
+int buzzerPin = 26;
+int ledPin = 27;
+int solenoidePin = 32;
+int drenagemPin = 33;
+int bldcPin = 25;
 const int buttonPin = 0;
 const int button2Pin = 35;
 int valorbutton = 0;
@@ -44,34 +44,53 @@ byte xcolon = 0, xsecs = 0;
 unsigned int colour = 0;
 
 
+//funcao TOM Som 
+
+void tom(char pino, int frequencia, int duracao){
+  float periodo = 1000.0/frequencia; //Periodo em ms
+  for (int i = 0; i< duracao/(periodo);i++){ //Executa a rotina de dentro o tanta de vezes que a frequencia desejada cabe dentro da duracao
+    digitalWrite(pino,HIGH);
+    delayMicroseconds(periodo*500); //Metade do periodo em ms
+    digitalWrite(pino, LOW);
+    delayMicroseconds(periodo*500);
+  }}
+
+
+//funcao ciclo 1
 
 void ciclo(){
          tft.setTextSize(2);
          tft.fillScreen(TFT_BLUE);
          Serial.println("Iniciando ciclo");
-         digitalWrite(ledPin, HIGH);
+         digitalWrite(ledPin, LOW);
+         tom(buzzerPin,440,1000); //LA
+         delay(100);
+         tom(buzzerPin,294,1000); //RE
+         delay(100);
+         tom(buzzerPin,349,5000/2); //FA
+         delay(1000);
          Serial.println("Ligando valvula solenoide");
          bot.sendMessage(id, "ligando valvula", "");
          tft.drawString("ligando valvula", tft.width() / 6, tft.height() / 6);
-        digitalWrite(solenoidePin, HIGH);
-         delay(15000);
          digitalWrite(solenoidePin, LOW);
+         delay(5000);
+         digitalWrite(solenoidePin, HIGH);
 
          Serial.println("Ligando motor  lavagem");
-bot.sendMessage(id,"ligando motor lavagem");
-tft.fillScreen(TFT_BLUE);
-       tft.drawString("lavando", tft.width() / 6, tft.height() / 6);
-       analogWrite(bldcPin, 255);
- delay(15000);
- analogWrite(bldcPin, 0);
+         bot.sendMessage(id,"ligando motor lavagem");
+         tft.fillScreen(TFT_BLUE);
+         tft.drawString("lavando", tft.width() / 6, tft.height() / 6);
+         analogWrite(bldcPin, 255);
+         delay(5000);
+         analogWrite(bldcPin, 0);
  
-Serial.println("Ligando drenagem");
-bot.sendMessage(id,"ligando drenagem");
-tft.fillScreen(TFT_BLUE);
-       tft.drawString("drenando agua", tft.width() / 6, tft.height() / 6);
+         Serial.println("Ligando drenagem");
+         bot.sendMessage(id,"ligando drenagem");
+        tft.fillScreen(TFT_BLUE);
+        tft.drawString("drenando agua...", tft.width() / 6, tft.height() / 6);
+        digitalWrite(drenagemPin, LOW);
+        delay(5000);
         digitalWrite(drenagemPin, HIGH);
- delay(15000);
-  digitalWrite(drenagemPin, LOW);
  
 
  
@@ -80,17 +99,56 @@ bot.sendMessage(id,"ligando motor fullspeed e drenagem");
 tft.fillScreen(TFT_BLUE);
        tft.drawString("ligando motor \n full", tft.width() / 6, tft.height() / 6);
        analogWrite(bldcPin, 1023);
-       digitalWrite(drenagemPin, HIGH);
- delay(25000);
+       digitalWrite(drenagemPin, LOW);
+ delay(5000);
  analogWrite(bldcPin, 0);
- digitalWrite(drenagemPin, LOW);
+ digitalWrite(drenagemPin, HIGH);
  
 Serial.println("Roupa limpinha");
 bot.sendMessage(id,"Roupa limpinha");
 tft.fillScreen(TFT_BLUE);
 tft.drawString("Roupa limpinha", tft.width() / 6, tft.height() / 6);
-digitalWrite(ledPin, LOW);
-delay(15000);
+digitalWrite(ledPin, HIGH);
+
+delay(1000);
+//muisc final
+tom(buzzerPin,440,1000); //LA
+  delay(50);
+  tom(buzzerPin,294,1000); //RE
+  delay(50);
+  tom(buzzerPin,349,1000/2); //FA
+  delay(50/2);
+  tom(buzzerPin,392,1000/2); //SOL
+  delay(50/2);
+  tom(buzzerPin,440,1000); //LA
+  delay(50);
+  tom(buzzerPin,294,1000); //RE
+  delay(50);
+  tom(buzzerPin,349,1000/2); //FA
+  delay(50/2);
+  tom(buzzerPin,392,1000/2); //SOL
+  delay(50/2);
+  tom(buzzerPin,330,1000); //M
+  delay(50);
+  tom(buzzerPin,440,1000); //LA
+  delay(50);
+  tom(buzzerPin,294,1000); //RE
+  delay(50);
+  tom(buzzerPin,349,1000/2); //FA
+  delay(50/2);
+  tom(buzzerPin,392,1000/2); //SOL
+  delay(50/2);
+  tom(buzzerPin,440,1000); //LA
+  delay(50);
+  tom(buzzerPin,294,1000); //RE
+  delay(30);
+  tom(buzzerPin,349,1000/2); //FA
+  delay(30/2);
+  tom(buzzerPin,392,1000/2); //SOL
+  delay(50/2);
+  tom(buzzerPin,330,3000); //M
+
+delay(5000);
 tft.fillScreen(TFT_BLACK);
 cuco();
 
@@ -190,18 +248,20 @@ pinMode(solenoidePin, OUTPUT); // initialize digital ledPin as an output.
 pinMode(drenagemPin, OUTPUT); // initialize digital ledPin as an output.
 pinMode(bldcPin, OUTPUT); // initialize digital ledPin as an output.
 pinMode(ledPin, OUTPUT); // initialize digital ledPin as an output.
+pinMode(buzzerPin, OUTPUT); // initialize digital ledPin as an output.
 
-
+digitalWrite(buzzerPin, LOW);
 digitalWrite(ledPin, LOW);
 digitalWrite(solenoidePin, HIGH); // initialize pin as off (active LOW)
-digitalWrite(solenoidePin, LOW); // initialize pin as off (active LOW)
-digitalWrite(drenagemPin, LOW); // initialize pin as off (active LOW)
+digitalWrite(drenagemPin, HIGH); // initialize pin as off (active LOW)
 analogWrite(bldcPin, 0); // initialize pin as off (active LOW)
 
   
    WiFi.mode(WIFI_STA);//Define o WiFi como Estaçao
    connect();//Funçao para Conectar ao WiFi
-   
+
+
+  
 //inicia tft
   tft.init();
   tft.setRotation(1);
@@ -228,12 +288,7 @@ Serial.begin(115200);
   Serial.print("Retrieving time: ");
   configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
   time_t now = time(nullptr);
-  while (now < 24 * 3600)
-  {
-    Serial.print(".");
-    delay(1000);
-    now = time(nullptr);
-  }
+
   Serial.println(now);
 
    
@@ -257,6 +312,8 @@ if ((valorbutton) == LOW) {
  Serial.println(valorbutton);
 readTel();
 ciclo();
+
+delay(2000);
 bot.sendMessage(id, "Button pressionado", "");//Envia uma Mensagem para a pessoa que enviou o Comando.
 
   }
@@ -305,6 +362,9 @@ void readTel()//Funçao que faz a leitura do Telegram.
          tft.setTextSize(3);
          tft.fillScreen(TFT_RED);
          tft.drawString("Lava OFF", tft.width() / 1, tft.height() / 1);
+           digitalWrite(solenoidePin, HIGH);
+             digitalWrite(drenagemPin, HIGH);
+               digitalWrite(ledPin, HIGH);
          delay(5000);
          cuco();
       }
