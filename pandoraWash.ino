@@ -3,6 +3,7 @@
   Complete project details at https://github.com/santocyber/pandoraWash
   
 */
+
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
@@ -61,13 +62,13 @@ void tarefa1(){
     digitalWrite(solenoidePin, LOW);
   }
   // Verifica se já passou 400 milisegundos reinicia funcao
-  if((millis() - millisTarefa1) > 400){
+  if((millis() - millisTarefa1) > 5000){
     millisTarefa1 = millis();
   }}
 
   void tarefa2(){
   // Verifica se já passou 200 milisegundos
-  if((millis() - millisTarefa2) < 200){
+  if((millis() - millisTarefa2) < 5000){
     // Acende o pino 8 bomba drenagem
     digitalWrite(drenagemPin, HIGH);
     
@@ -113,6 +114,49 @@ void tarefa1(){
 
 
 
+void ciclo(){
+
+Serial.println("Iniciando ciclo");
+         Serial.println("Ligando valvula solenoide");
+         bot.sendMessage(id, "ligando valvula", "");
+         tft.drawString("ligando valvula", tft.width() / 6, tft.height() / 6);
+        digitalWrite(solenoidePin, HIGH);
+         delay(5000);
+         digitalWrite(solenoidePin, LOW);
+
+         Serial.println("Ligando motor  lavagem");
+bot.sendMessage(id,"ligando motor lavagem");
+       tft.drawString("lavando", tft.width() / 5, tft.height() / 5);
+       analogWrite(bldcPin, 255);
+ delay(5000);
+ analogWrite(bldcPin, 0);
+ 
+Serial.println("Ligando drenagem");
+bot.sendMessage(id,"ligando drenagem");
+       tft.drawString("drenando agua", tft.width() / 4, tft.height() / 4);
+        digitalWrite(drenagemPin, HIGH);
+ delay(5000);
+  digitalWrite(drenagemPin, LOW);
+ 
+
+ 
+Serial.println("Ligando motor fullspeed e drenagem");
+bot.sendMessage(id,"ligando motor fullspeed e drenagem");
+       tft.drawString("ligando motor", tft.width() / 3, tft.height() / 3);
+       analogWrite(bldcPin, 1023);
+       digitalWrite(drenagemPin, HIGH);
+ delay(5000);
+ analogWrite(bldcPin, 0);
+ digitalWrite(drenagemPin, LOW);
+ 
+Serial.println("Roupa limpinha");
+bot.sendMessage(id,"Roupa limpinha");
+tft.drawString("Roupa limpinha", tft.width() / 2, tft.height() / 2);
+
+
+}
+
+
 
 
 void cuco(){
@@ -140,7 +184,7 @@ if (targetTime < millis()) {
     int xpos = 0;
     int ypos = 25; // Top left corner ot clock text, about half way down
     int ysecs = ypos + 10;
-     tft.setTextSize(0);
+     tft.setTextSize(1);
 
     
 
@@ -255,61 +299,29 @@ void readTel()//Funçao que faz a leitura do Telegram.
    {
       id = bot.messages[i].chat_id;//Armazenara o ID do Usuario à Váriavel.
       text = bot.messages[i].text;//Armazenara o TEXTO do Usuario à Váriavel.
-      text.toUpperCase();//Converte a STRING_TEXT inteiramente em Maiuscúla.
+      //text.toUpperCase();//Converte a STRING_TEXT inteiramente em Maiuscúla.
       from_name = bot.messages[i].from_name;
+      bot.messages[i].type == "channel_post";
       
 
-      if (text.indexOf("ON") > -1)//Caso o texto recebido contenha "ON"
+      if (text.indexOf("LAVAON") > -1)//Caso o texto recebido contenha "ON"
       {
-         digitalWrite(D4, 0);//Liga o LED
-         bot.sendMessage(id, "LED ON", "");//Envia uma Mensagem para a pessoa que enviou o Comando.
-         tft.setTextSize(3);
+         tft.setTextSize(2);
          tft.fillScreen(TFT_BLUE);
        
 
-Serial.println("Iniciando ciclo");
-Serial.println("Ligando valvula solenoide");
-bot.sendMessage(id, "liberando agua", "");
-       tft.drawString("ligando valvula", tft.width() / 2, tft.height() / 2);
-       tarefa1();
- delay(5000);
- 
-Serial.println("Ligando drenagem");
-bot.sendMessage(id,"ligando drenagem");
-       tft.drawString("drenando agua", tft.width() / 2, tft.height() / 2);
-       tarefa2();
- delay(5000);
-
- 
-Serial.println("Ligando motor  lavagem");
-bot.sendMessage(id,"ligando motor lavagem");
-       tft.drawString("lavando", tft.width() / 0, tft.height() / 0);
-       tarefa3();
- delay(5000);
- 
-Serial.println("Ligando motor fullspeed e drenagem");
-bot.sendMessage(id,"ligando motor fullspeed e drenagem");
-       tft.drawString("ligando motor", tft.width() / 2, tft.height() / 2);
-       tarefa2();
-       tarefa4();
- delay(5000);
- 
-Serial.println("Roupa limpinha");
-bot.sendMessage(id,"Roupa limpinha");
-tft.drawString("Roupa limpinha", tft.width() / 2, tft.height() / 2);
-
-         
+         ciclo();
          delay(5000);
          cuco();
       }
 
-      else if (text.indexOf("OFF") > -1)//Caso o texto recebido contenha "OFF"
+      else if (text.indexOf("LAVAOFF") > -1)//Caso o texto recebido contenha "OFF"
       {
          digitalWrite(D4, 1);//Desliga o LED
-         bot.sendMessage(id, "LED OFF", "");//Envia uma Mensagem para a pessoa que enviou o Comando.
+         bot.sendMessage(id, "Lava OFF", "");//Envia uma Mensagem para a pessoa que enviou o Comando.
          tft.setTextSize(3);
          tft.fillScreen(TFT_YELLOW);
-         tft.drawString("LED OFF", tft.width() / 2, tft.height() / 2);
+         tft.drawString("Lava OFF", tft.width() / 1, tft.height() / 1);
          delay(5000);
          cuco();
       }
@@ -325,14 +337,28 @@ tft.drawString("Roupa limpinha", tft.width() / 2, tft.height() / 2);
 
       welcome = "Bem vindo, " + from_name + ".\n";
       welcome += "Esse eh a PandoraBOT\n\n";
-      welcome += "/ledon : to switch the Led ON\n";
-      welcome += "/ledoff : to switch the Led OFF\n";
-      welcome += "/status : Returns current status of LED\n";
-      bot.sendMessage(id, welcome, "Markdown");
-      bot.sendSimpleMessage(id, id, "");//Envia uma mensagem com seu ID.
-      
+      welcome += "/LAVAON : Para ligar a maquina de lavar\n";
+      welcome += "/LAVAOFF : Para desligar a maquina de lavar\n";
+      welcome += "/OLA : Abre esse menu\n";
+      bot.sendMessage(id, welcome, "Markdown");      
+      }
+      else if   (text = "/Ola")//Caso o texto recebido contenha "START"
+      {
+     if (from_name == "")
+      from_name = "Guest";
+
+      welcome = "Bem vindo, " + from_name + ".\n";
+      welcome += "Esse eh a PandoraBOT\n\n";
+      welcome += "/LAVAON : to switch the Led ON\n";
+      welcome += "/LAVAOFF : to switch the Led OFF\n";
+      welcome += "/OLA : Returns current status of LED\n";
+      bot.sendMessage(id, welcome, "Markdown");  
       }
 
+      else if (text.indexOf("/Ola") > -1)//Caso o texto recebido contenha "START"
+      {
+         bot.sendSimpleMessage(id, id, "");//Envia uma mensagem com seu ID.
+      }
       else//Caso o texto recebido nao for nenhum dos acima, Envia uma mensagem de erro.
       {
     //     bot.sendSimpleMessage(id, "Comando Invalido", "");
